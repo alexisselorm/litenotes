@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Note;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
 class NoteController extends Controller
@@ -14,6 +16,10 @@ class NoteController extends Controller
     public function index()
     {
         //
+        $userId = auth()->user()->id;
+        $notes = Note::where('user_id', $userId)->paginate(5);
+        return view('notes.index',
+    ['notes'=>$notes]);
     }
 
     /**
@@ -24,6 +30,7 @@ class NoteController extends Controller
     public function create()
     {
         //
+        return view('notes.create');
     }
 
     /**
@@ -35,6 +42,14 @@ class NoteController extends Controller
     public function store(Request $request)
     {
         //
+        $attributes = $request->validate([
+            'title'=> 'required|max:255',
+            'text'=> 'required',
+        ]);
+        $attributes['user_id'] = auth()->user()->id;
+        $attributes['uuid']=Str::uuid();
+        Note::create($attributes);
+        redirect('notes.index');
     }
 
     /**
@@ -43,9 +58,15 @@ class NoteController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Note $note)
     {
         //
+        if($note->user_id == auth()->user()->id){
+            return abort(403);
+        }
+        return view('notes.show', [
+            'note'=>$note
+        ]);
     }
 
     /**
