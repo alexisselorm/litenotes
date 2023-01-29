@@ -60,7 +60,7 @@ class NoteController extends Controller
     public function show(Note $note)
     {
         //
-        if(!$note->user->is(auth()->user()->id)){
+        if(!$note->user->is(auth()->user())){
             return abort(403);
         }
         return view('notes.show', [
@@ -120,7 +120,7 @@ class NoteController extends Controller
             return abort(403);
         }
         $note->delete();
-        return redirect()->route('notes.index')->with('success', 'Note deleted successfully.');;
+        return redirect()->route('notes.index')->with('success', 'Note moved to trash.');;
 
     }
 }
